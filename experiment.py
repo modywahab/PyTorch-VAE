@@ -8,6 +8,8 @@ import pytorch_lightning as pl
 from torchvision import transforms
 import torchvision.utils as vutils
 from torchvision.datasets import CelebA
+import torchvision.datasets as datasets 
+
 from torch.utils.data import DataLoader
 
 
@@ -26,6 +28,27 @@ class VAEXperiment(pl.LightningModule):
             self.hold_graph = self.params['retain_first_backpass']
         except:
             pass
+        
+        self.image_datasets = {}
+        transform = self.data_transforms()
+        if params.get('data_dir'):
+            for ds, ds_dir in params['data_dir'].items():
+                self.image_datasets[ds] = datasets.ImageFolder(ds_dir,
+                 transform=transform)
+        else:
+            dataset = getattr(datasets, params['dataset'])
+            for ds in ['train', 'test']:
+                if params['dataset']=='CelebA':
+                    self.image_datasets[ds] = dataset(root = self.params['data_path'],
+                                                            split = ds,
+                                                            transform=transform,
+                                                            download=True)
+                else:
+                    self.image_datasets[ds] = dataset(root=self.params['data_path'],
+                                                      train=ds=='train',
+                                                      transform=transform,
+                                                      download=True)
+
 
     def forward(self, input: Tensor, **kwargs) -> Tensor:
         return self.model(input, **kwargs)
@@ -173,13 +196,10 @@ class VAEXperiment(pl.LightningModule):
         SetRange = transforms.Lambda(lambda X: 2 * X - 1.)
         SetScale = transforms.Lambda(lambda X: X/X.sum(0).expand_as(X))
 
-        if self.params['dataset'] == 'celeba':
-            transform = transforms.Compose([transforms.RandomHorizontalFlip(),
-                                            transforms.CenterCrop(148),
-                                            transforms.Resize(self.params['img_size']),
-                                            transforms.ToTensor(),
-                                            SetRange])
-        else:
-            raise ValueError('Undefined dataset type')
+        transform = transforms.Compose([transforms.RandomHorizontalFlip(),
+                                        transforms.CenterCrop(148),
+                                        transforms.Resize(self.params['img_size']),
+                                        transforms.ToTensor(),
+                                        SetRange])
         return transform
 
