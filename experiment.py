@@ -157,16 +157,7 @@ class VAEXperiment(pl.LightningModule):
 
     @data_loader
     def train_dataloader(self):
-        transform = self.data_transforms()
-
-        if self.params['dataset'] == 'celeba':
-            dataset = CelebA(root = self.params['data_path'],
-                             split = "train",
-                             transform=transform,
-                             download=False)
-        else:
-            raise ValueError('Undefined dataset type')
-
+        dataset = self.image_datasets['train']
         self.num_train_imgs = len(dataset)
         return DataLoader(dataset,
                           batch_size= self.params['batch_size'],
@@ -175,19 +166,12 @@ class VAEXperiment(pl.LightningModule):
 
     @data_loader
     def val_dataloader(self):
-        transform = self.data_transforms()
-
-        if self.params['dataset'] == 'celeba':
-            self.sample_dataloader =  DataLoader(CelebA(root = self.params['data_path'],
-                                                        split = "test",
-                                                        transform=transform,
-                                                        download=False),
-                                                 batch_size= 144,
-                                                 shuffle = True,
-                                                 drop_last=True)
-            self.num_val_imgs = len(self.sample_dataloader)
-        else:
-            raise ValueError('Undefined dataset type')
+        dataset = self.image_datasets['test']
+        self.sample_dataloader = DataLoader(dataset,
+                                            batch_size=144,
+                                            shuffle=True,
+                                            drop_last=True)
+        self.num_val_imgs = len(self.sample_dataloader)
 
         return self.sample_dataloader
 
