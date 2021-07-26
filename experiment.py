@@ -182,7 +182,7 @@ class VAEXperiment(pl.LightningModule):
 
         transform = transforms.Compose([transforms.RandomHorizontalFlip(),
                                         transforms.CenterCrop(148),
-                                        transforms.Resize(self.params['img_size']),
+                                        # transforms.Resize(self.params['img_size']),
                                         transforms.ToTensor(),
                                         SetRange])
         return transform
