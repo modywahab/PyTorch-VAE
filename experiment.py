@@ -181,7 +181,7 @@ class VAEXperiment(pl.LightningModule):
         SetScale = transforms.Lambda(lambda X: X/X.sum(0).expand_as(X))
 
         transform = transforms.Compose([transforms.RandomHorizontalFlip(),
-                                        transforms.CenterCrop(148),
+                                        # transforms.CenterCrop(148),
                                         # transforms.Resize(self.params['img_size']),
                                         transforms.ToTensor(),
                                         SetRange])
