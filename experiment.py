@@ -176,8 +176,7 @@ class VAEXperiment(pl.LightningModule):
         return self.sample_dataloader
 
     def data_transforms(self):
-        transform = transforms.ToTensor()
-
+        transform = transforms.Compose([transforms.ToTensor()])
         # SetRange = transforms.Lambda(lambda X: 2 * X - 1.)
         # SetScale = transforms.Lambda(lambda X: X/X.sum(0).expand_as(X))
 
